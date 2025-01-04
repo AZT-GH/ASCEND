@@ -59,16 +59,15 @@
 #define motion_intterupt_pin 27
 
 
-byte initComplete=0;
-volatile int xydat[2];
-long total[2];
-volatile byte movementflag=0;
-byte testctr=0;
-unsigned long curr_time;
-unsigned long poll_time;
+byte initComplete=0; //Stores if the sensor has been intialised
+volatile int xydat[2]; //Array with two integers for delta x and delta y
+long total[2]; //Array for total movement from home. CURRENTLY UNUSED
+volatile byte movementflag=0; //Variable for ongoing movement. CURRENTLY UNUSED
+unsigned long curr_time; //Current time in loop
+unsigned long poll_time; //Poll time in loop
 
-extern const unsigned short firmware_length;
-extern const unsigned char firmware_data[];
+extern const unsigned short firmware_length; //SROM firmware length
+extern const unsigned char firmware_data[]; //SROM firmware data
 
 //Declare variables for debouncing system
 int button1_timer_enabled = 0;
@@ -85,17 +84,17 @@ int button4_timer_count = 0;
 
 int global_timer_count = 0;
 
-int debounce_length = 20; //in units of ms
+int debounce_length = 20; //in units of ms, lower time is possibly stable but unless 50 cpm is being exceeded 20ms is fine
 
 //Declare dpi related variables and array
-int dpi_current = EEPROM.read(0);
-int dpi_set;
+int dpi_set = EEPROM.read(0);
+int dpi_current;
 int dpi_array[4] = {400, 800, 1600, 3200};
 int dpi_scaled[4] = {dpi_array[0]/16000, dpi_array[1]/16000, dpi_array[2]/16000, dpi_array[3]/16000};
 
 
 void setup() {
-  delay(50); //Let all ics settle
+  delay(50); //Let all ics settle (namely level shifter)
   
   pinMode(8, OUTPUT); //Slave select
   pinMode(12, OUTPUT); //Level shifter output enable
@@ -111,34 +110,36 @@ void setup() {
   pinMode(22, INPUT_PULLUP); //DPI R Switch
   pinMode(27, INPUT); //Motion o/p from optical sensor
 
+  //Turn on applicable pullups
   digitalWrite(18, HIGH);
   digitalWrite(19, HIGH);
   digitalWrite(20, HIGH);
   digitalWrite(21, HIGH);
   digitalWrite(22, HIGH);
 
-  Serial.begin(115200);
-
   digitalWrite(12, HIGH); //Level shifter output enabled
+  
+  Serial.begin(115200);
+  
   SPI.begin(); //Initialise SPI
-  SPI.setDataMode(SPI_MODE3);
-  SPI.setBitOrder(MSBFIRST);
-  SPI.setClockDivider(SPI_CLOCK_DIV16);
+  SPI.setDataMode(SPI_MODE3); //Clock idle high, Data sampled on rising edge of clock
+  SPI.setBitOrder(MSBFIRST); //Most significant bit first
+  SPI.setClockDivider(SPI_CLOCK_DIV16); //Clock divided by 16 to get 1MHz clock for spi (up to 2MHz supported)
 
-  attachInterrupt(27, UpdatePointer, FALLING);
+  attachInterrupt(27, UpdatePointer, FALLING); //Motion pin interrupt
 
-  performStartup();
+  performStartup(); //Optical sensor startup
 
-  delay(5000);
+  delay(5000); //5s delay for optical sensor to stabilise
 
-  dispRegisters();
-  initComplete = 9;
-  total[0] = 0;
-  total[1] = 1;
+  dispRegisters(); //Registers printed over serial
+  initComplete = 9; //Optical sensor intialisation complete
+  total[0] = 0; //Total X movement from home reset
+  total[1] = 0; //Total Y movement from home reset
 
 
   //If dpi has not been set the program enters dpi setting mode automatically
-  if (dpi_current == 0){
+  if (dpi_set == 255){
     dpi_set = 0; //First dpi setting
     dpi_current = dpi_array[dpi_set]; //DPI set accordingly to array
     
@@ -176,15 +177,17 @@ void setup() {
       delay(10);
     }
 
-    EEPROM.write(0, dpi_current); //Dpi written to EEPROM after DPI_L is pressed
+    EEPROM.write(0, dpi_set); //Dpi written to EEPROM after DPI_L is pressed
 
-    if (EEPROM.read(0) == dpi_current){
+    if (EEPROM.read(0) == dpi_set){
     
       //All LEDs flashed to confirm EEPROM writing
       digitalWrite(28, HIGH);
       digitalWrite(29, HIGH);
       digitalWrite(30, HIGH);
       digitalWrite(31, HIGH);
+
+      Serial.println("DPI successfully saved to EEPROM");
 
       delay(250);
       
@@ -200,14 +203,18 @@ void setup() {
       digitalWrite(28, HIGH);
       digitalWrite(30, HIGH);
 
+      Serial.println("EEPROM read/write unsuccesful");
+
       delay(1000);
 
       digitalWrite(28, LOW);
       digitalWrite(30, LOW);
     }
   }
-  
-  Mouse.begin();
+
+  Serial.println("Current DPI : " + dpi_array[dpi_set]);
+    
+  Mouse.begin(); //Mouse library intialised
 
 }
 
@@ -315,6 +322,9 @@ void adns_write_reg(byte reg_addr, byte reg_data){
 }
 
 void adns_upload_firmware(){
+
+  Serial.println("Uploading firmware...");
+  
   adns_write_reg(Config2, 0x20);
   adns_write_reg(SROM_Enable, 0x1d);
 
@@ -365,6 +375,9 @@ void performStartup(void){
   // upload the firmware
   adns_upload_firmware();
   delay(10);
+    
+  Serial.println("Optical Chip Initialized");
+  
 }
 
 void UpdatePointer(void){
