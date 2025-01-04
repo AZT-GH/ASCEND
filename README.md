@@ -2,7 +2,7 @@
 ### **Frame Gaming Mouse**
 
 ## HARDWARE
-The AZT ASCEND is a lightweight usb gaming mouse that is being developed by me in 2025. It is my first usb hid project and my first time using the ATMega32u4. The mouse features three mouse control buttons (no scroll wheel yet) and two smaller buttons for dpi control. A pixart pmw3389 optical sensor is used for mouse movement and omron d2f-d1f are used for all three front buttons. The mouse utilises fullspeed usb2.0 and is compatible with usb c to c. ESD and overcurrent protection has also been implemented.
+The AZT ASCEND is a lightweight usb gaming mouse that is being developed by me in 2025. It is my first usb hid project and my first time using the ATMega32u4. The mouse features three mouse control buttons (no scroll wheel yet) and two smaller buttons for dpi control. A pixart pmw3389 optical sensor is used for mouse movement and omron d2f-d1f switches are used for all three front buttons. The mouse utilises fullspeed USB2.0 and is compatible with USB C toCc. ESD and overcurrent protection has also been implemented.
 
 ### BOM
 *Items marked * should not be replaced with generic replacements*\
