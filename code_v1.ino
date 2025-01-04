@@ -213,8 +213,11 @@ void setup() {
   }
 
   Serial.println("Current DPI : " + dpi_array[dpi_set]);
-    
+  
+  timer0_init(); //Timer initialised
   Mouse.begin(); //Mouse library intialised
+
+  Serial.println("Startup succesful");
 
 }
 
@@ -285,16 +288,16 @@ int button_pressed(int pin_number){
 }
 
 void timer0_init(){
-  TCCR0A = 0x00;
-  TCCR0B = (1 << WGM02);  // CTC mode
+  TCCR0A = 0x00; //Clears the TCCR0A register
+  TCCR0B = (1 << WGM02);  //CTC mode selected for TTCR0B Register
 
-  OCR0A = 249;
+  OCR0A = 249; //OCR0A register set to 249
 
-  TIMSK0 = (1 << OCIE0A);
+  TIMSK0 = (1 << OCIE0A); //This will trigger an interrupt when the timer's value matches OCR0A
 
-  TCCR0B |= (1 << CS01) | (1 << CS00);
+  TCCR0B |= (1 << CS01) | (1 << CS00); //Prescaler set to 64
 
-  sei();
+  sei(); //Global interrupts enabled
 }
 
 void adns_com_begin(){
