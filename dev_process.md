@@ -9,8 +9,8 @@ so there is my first goal.\
 **Goal 1 - Total mass less than 20g exluding cable**\
 \
 ![image](https://github.com/user-attachments/assets/eb0a7802-f56d-4db3-bb17-41789102c773)\
-*Very early case design where I was testing button spacing and total mouse length*\
+*Very early (non-frame) case design where I was testing button spacing and total mouse length*\
 \
 ### Customisation
-Designing my own mouse, I am able to add (and remove) whatever features I wish. For example, I like the feature of being able to cycle through DPI stages directly on my mouse without the need for external software,
-for this reason I implemented seamless DPI changing and storage on EEPROM.
+Designing my own mouse, I am able to add (and remove) whatever features I wish. For example, I like the feature of being able to cycle through DPI stages directly on my mouse without the need for external software, for this reason I implemented seamless DPI changing and storage on EEPROM. I also decided to not incorporate a scroll wheel into my first
+prototype, as it is largely unused in modern games and would only complicate the design process.
