@@ -64,7 +64,7 @@ volatile int xydat[2]; //Array with two integers for delta x and delta y
 long total[2]; //Array for total movement from home. CURRENTLY UNUSED
 volatile byte movementflag=0; //Variable for ongoing movement. CURRENTLY UNUSED
 unsigned long curr_time; //Current time in loop
-unsigned long poll_time; //Poll time in loop
+unsigned long poll_time = 0; //Poll time in loop
 
 extern const unsigned short firmware_length; //SROM firmware length
 extern const unsigned char firmware_data[]; //SROM firmware data
@@ -219,8 +219,9 @@ void setup() {
 }
 
 void loop() {
-  curr_time = micros();
+  curr_time = micros(); //time at loop start /µs
 
+  //if at least 1 ms has passed since the last poll a new poll can occur
   if(curr_time > poll_time){
     UpdatePointer();
     Mouse.move(xydat[0]/dpi_scaled[dpi_set], xydat[1]/dpi_scaled[dpi_set], 0);
@@ -228,6 +229,8 @@ void loop() {
 
   poll_time = curr_time + 1010; //1010µS ≈ 1000hz,  1250µS = 800hz, 2000µS = 500hz, 4000µS = 250hz  
 
+  //if the left button is pressed a left click is sent to the computer
+  //the same applies for all of the if statements here
   if (button_pressed(18) == 1){
     Mouse.press(MOUSE_LEFT);
   }
@@ -251,23 +254,27 @@ void loop() {
 
 }
 
+//function to see if a button has been pressed (pin low) with integrated debouncing
 int button_pressed(int pin_number){
+  //referenced array of variables
   int* timer_enabled_array []= {&button1_timer_enabled, &button2_timer_enabled, &button3_timer_enabled, &button4_timer_enabled};
-  
+
+  //if the pin is low and the timer is disabled a 1 is returned and the timer is enabled
   if (digitalRead(pin_number) == 0 && *timer_enabled_array[pin_number - 18] == 0){
     *timer_enabled_array[pin_number - 18] = 1;
     
-    if (pin_number != 21){
+    if (pin_number != 21){ //If buttons 1, 2 or 3 are pressed their coressponding LED lights up
       digitalWrite(pin_number + 10, HIGH);
     } 
     return 1;
 
   }
-
+  //If the timer is already on a 1 is returned
   else if (*timer_enabled_array[pin_number - 18] == 1){
     return 1;
   }
 
+  //If the input is high and the timer is off a 0 is returned and the relevant LED is turned off (for buttons 1, 2 or 3)
   else{
     if (pin_number != 21){
       digitalWrite(pin_number + 10, LOW);
