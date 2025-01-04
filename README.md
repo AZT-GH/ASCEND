@@ -38,12 +38,12 @@ The AZT ASCEND is a lightweight usb gaming mouse that is being developed in 2025
 | SZYY1206O^             | LED                          | 8   |
 
 ## SOFTWARE
-The ASCEND features zero latency software debouncing for the 3 mouse control buttons and standard 50ms software deboucning for the dpi buttons. The SPI code and SROM file have been sourced from [PMW3389-DUO](https://github.com/wklenk/pmw3389-duo/tree/main). The debouncing and dpi select code is original.
+The ASCEND features 1ms latency software debouncing for the 3 mouse control buttons and standard 50ms software deboucning for the dpi buttons. The SPI code and SROM file have been sourced from [PMW3389-DUO](https://github.com/wklenk/pmw3389-duo/tree/main). The debouncing and dpi select code is original.
 
 ## SHELL
 tbd
 
 ## FUTURE
-I plan to incorporate a scroll wheel into the design once a fully functioning version of the current design is ready for manufacture. Furthermore, a ui for user adjustment of dpi_array without soldering programming cables is planned. Until then, any sold mice will have dpi values and polling rate hardcoded onto the mouse (customisable at order time)
+I plan to incorporate a scroll wheel into the design once a fully functioning version of the current design is ready for manufacture. Furthermore, a ui for user adjustment of dpi_array without soldering programming cables is planned. Until then, any mice will have dpi values and polling rate hardcoded onto the mouse (customisable at order time)
 
 I hope that this project helps you with your mouse building endeavour as I found it quite difficult to gather information on this topic.
