@@ -38,7 +38,7 @@ The AZT ASCEND is a lightweight usb gaming mouse that is being developed by me i
 | SZYY1206O^             | LED                          | 8   |
 
 ## SOFTWARE
-The ASCEND features 1ms latency software debouncing for switches. The SPI code and SROM file have been adapted from [PMW3389-DUO](https://github.com/wklenk/pmw3389-duo/tree/main). The debouncing and dpi select code is original.
+The ASCEND features 1ms latency software debouncing for switches. The SPI code and SROM file have been adapted from [PMW3389-DUO](https://github.com/wklenk/pmw3389-duo/tree/main). Many thanks to mrjohnk and wklenk. The debouncing and dpi select code is original.
 
 ## SHELL
 tbd
