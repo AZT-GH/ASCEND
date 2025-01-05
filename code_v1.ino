@@ -61,7 +61,7 @@
 byte initComplete=0; //Stores if the sensor has been intialised
 volatile int xydat[2]; //Array with two integers for delta x and delta y
 long total[2]; //Array for total movement from home. CURRENTLY UNUSED
-volatile byte movementflag=0; //Variable for ongoing movement. CURRENTLY UNUSED
+volatile byte movementflag = 0; //Variable for ongoing movement. CURRENTLY UNUSED
 unsigned long curr_time; //Current time in loop
 unsigned long poll_time = 0; //Poll time in loop
 
@@ -84,24 +84,28 @@ int button4_timer_count = 0;
 volatile int button5_timer_enabled = 0;
 int button5_timer_count = 0;
 
-int debounce_length = 20; //in units of ms, lower time is possibly stable but unless 50 cpm is being exceeded 20ms is fine
+int debounce_length = 1.125; //in units of ms (must be a multiple of 1/8 or the debouncing WILL NOT WORK), should be stable for around 500k clicks or so
+//Click polling rate = 1000/debounce_length (by default (1.125 debounce length) it is 889Hz) (The switches are not rated for below 1ms of bounce so try at your own risk)
 
 //Declare dpi related variables and array
 int dpi_set = EEPROM.read(0);
 
-int dpi_current;
 float dpi_array[4] = {400, 800, 1600, 3200};
 float dpi_scaled[4] = {dpi_array[0]/16000, dpi_array[1]/16000, dpi_array[2]/16000, dpi_array[3]/16000};
 
 
 void setup() {
+  
+  debounce_length *= 8;
+  
   delay(50); //Let all ics settle (namely level shifter)
 
   if (dpi_set < 0 || dpi_set >= 4) {
   dpi_set = 0; // Default to a safe value
   }
+
   
-  pinMode(8, OUTPUT); //Slave select
+  pinMode(8, OUTPUT); //Slave select active low
   pinMode(12, OUTPUT); //Level shifter output enable
   pinMode(28, OUTPUT); //LED cluster 1
   pinMode(29, OUTPUT); //LED cluster 2
@@ -143,8 +147,8 @@ void setup() {
 
   Serial.println("Current DPI : " + int(dpi_array[dpi_set]));
   
-  timer0_init(); //Timer initialised
   Mouse.begin(); //Mouse library intialised
+  timer0_init(); //Timer initialised
 
   Serial.println("Startup succesful");
 
@@ -206,7 +210,6 @@ void loop() {
       if (button_pressed(22) == 1){
         dpi_set ++; 
         dpi_set %= 4; //Dpi_set operated on by modulus to reduce size
-        dpi_current = dpi_array[dpi_set]; //Dpi chosen
       }
 
       //Additional debounce to ensure switch has been released before cycling
@@ -293,7 +296,7 @@ void timer0_init(){
 
   TIMSK0 = (1 << OCIE0A); //This will trigger an interrupt when the timer's value matches OCR0A
 
-  TCCR0B |= (1 << CS01) | (1 << CS00); //Prescaler set to 64
+  TCCR0B = (1 << CS01); //Prescaler set to 8
 
   sei(); //Global interrupts enabled
 }
@@ -435,6 +438,7 @@ void dispRegisters(){
 
 ISR(TIMER0_COMPA_vect) {
   // Code to execute every 1 ms
+
 
   if (button1_timer_enabled == 1){
     button1_timer_count ++;
