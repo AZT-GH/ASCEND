@@ -5,6 +5,7 @@ I decided on using USB2.0 without power delivery as this project does not requir
 
 ![image](https://github.com/user-attachments/assets/c8a2ed55-8132-4a37-a7bf-a37e558c767d)
 
+* J1 is a 16 pin USB-C receptacle. While not all 16 pins are necessary for this design, 16 pin models are very common and easy to source with the caveat that they are slightly harder to hand-solder. (Keep in mind that this project is being developed with reflow soldering in mind so the hand-solderability of components is not a main concern, this will become more obvious later on) 
 * F1 is a resettable fuse with a hold current of 200mA and a trip current of 400mA (the key is that the trip current is less than the max 500mA available from USB2.0). As the naming scheme suggests, it is able to hold a constant current of 200mA and will trip if 400mA is exceeded, protecting both this peripheral and the host.
 * R1 is a 5K1 resistor used to communicate that the device is a current sink, so that power is sent via VBUS. It should be within 10% tolerance (5% preferable).
 * R2 is used for the same reason. Two resistors are required to comply with standards since USB-C can be inserted in either direction.
