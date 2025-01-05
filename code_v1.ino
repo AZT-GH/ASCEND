@@ -118,12 +118,6 @@ void setup() {
   pinMode(22, INPUT_PULLUP); //DPI R Switch
   pinMode(27, INPUT); //Motion o/p from optical sensor
 
-  //Turn on applicable pullups
-  digitalWrite(18, HIGH);
-  digitalWrite(19, HIGH);
-  digitalWrite(20, HIGH);
-  digitalWrite(21, HIGH);
-  digitalWrite(22, HIGH);
 
   digitalWrite(12, HIGH); //Level shifter output enabled
   
