@@ -61,7 +61,6 @@
 byte initComplete=0; //Stores if the sensor has been intialised
 volatile int xydat[2]; //Array with two integers for delta x and delta y
 long total[2]; //Array for total movement from home. CURRENTLY UNUSED
-volatile byte movementflag = 0; //Variable for ongoing movement. CURRENTLY UNUSED
 unsigned long curr_time; //Current time in loop
 unsigned long poll_time = 0; //Poll time in loop
 
@@ -302,20 +301,20 @@ void timer0_init(){
 }
 
 void adns_com_begin(){
-  digitalWrite(8, LOW);
+  digitalWrite(8, LOW); //Slave select low (active low)
 }
 
 void adns_com_end(){
-  digitalWrite(8, HIGH);
+  digitalWrite(8, HIGH); //Slave select high (active low)
 }
 
 byte adns_read_reg(byte reg_addr){
   adns_com_begin();
-  SPI.transfer(reg_addr & 0x7f);
-  delayMicroseconds(100);
-  byte data = SPI.transfer(0);
+  SPI.transfer(reg_addr & 0x7f); //Register address sent with MSbit = 0 to indicate read
+  delayMicroseconds(100); //Serial read access delay
+  byte data = SPI.transfer(0); 
 
-  delayMicroseconds(1);
+  delayMicroseconds(1); //Dont understand " tSCLK-NCS for read operation is 120ns "
   adns_com_end();
   delayMicroseconds(19);
 
@@ -324,10 +323,10 @@ byte adns_read_reg(byte reg_addr){
 
 void adns_write_reg(byte reg_addr, byte reg_data){
   adns_com_begin();
-  SPI.transfer(reg_addr | 0x80);
+  SPI.transfer(reg_addr | 0x80); //Register address sent with MSbit = 1 to indicate read
   SPI.transfer(reg_data);
 
-  delayMicroseconds(20);
+  delayMicroseconds(20); //Dont understand " tSCLK-NCS for write operation "
   adns_com_end();
   delayMicroseconds(100);
 }
@@ -336,28 +335,33 @@ void adns_upload_firmware(){
 
   Serial.println("Uploading firmware...");
   
-  adns_write_reg(Config2, 0x20);
-  adns_write_reg(SROM_Enable, 0x1d);
+  adns_write_reg(Config2, 0x20); //Disable rest mode
+  adns_write_reg(SROM_Enable, 0x1d); //SROM written to for intialising
 
-  delay(10);
+  delay(10); //Wait for one frame period (value is overkill but this function is not time critical)
 
-  adns_write_reg(SROM_Enable, 0x18);
-  
+  adns_write_reg(SROM_Enable, 0x18); //SROM download start
+
+  //SROM data written in bursts
   adns_com_begin();
   SPI.transfer(SROM_Load_Burst | 0x80);
   delayMicroseconds(15);
 
+  //All bytes of firmware sent
   unsigned char c;
-
   for(int i = 0; i < firmware_length; i++){ 
     c = (unsigned char)pgm_read_byte(firmware_data + i);
     SPI.transfer(c);
     delayMicroseconds(15);
   }
 
+  //ID verified
   adns_read_reg(SROM_ID);
 
+  //0x00 written as this is a wired mouse (0x20 for wireless mice)
   adns_write_reg(Config2, 0x00);
+
+  //CPI resolution set (16000)
   adns_write_reg(Config1, 0x15);
 
   adns_com_end();
@@ -402,7 +406,7 @@ void UpdatePointer(){
     xydat[0] = (adns_read_reg(Delta_X_H) << 8) | adns_read_reg(Delta_X_L);
     xydat[1] = (adns_read_reg(Delta_Y_H) << 8) | adns_read_reg(Delta_Y_L);
     
-    movementflag=1;
+    //Motion LED on if any motion detected
     if (xydat[0] != 0 || xydat[0] != 0){
       digitalWrite(31, HIGH);
     }
@@ -412,8 +416,9 @@ void UpdatePointer(){
   }
 }
 
+//Register addresses and names initalised
 void dispRegisters(){
-  int oreg[7] = {
+  int oreg[7] = {           //Dont know why this is set to 7 (potentially mistyped)
     0x00,0x3F,0x2A,0x02  };
   char* oregname[] = {
     "Product_ID","Inverse_Product_ID","SROM_Version","Motion"  };
@@ -421,6 +426,7 @@ void dispRegisters(){
 
   digitalWrite(8,LOW);
 
+  //Registers printed over serial in human readable format
   int rctr=0;
   for(rctr=0; rctr<4; rctr++){
     SPI.transfer(oreg[rctr]);
@@ -437,13 +443,14 @@ void dispRegisters(){
 } 
 
 ISR(TIMER0_COMPA_vect) {
-  // Code to execute every 1 ms
+  // Code to execute every 1/8 ms
 
-
+  //If the timer is enabled the count increases
   if (button1_timer_enabled == 1){
     button1_timer_count ++;
   }
 
+  //If the timer is at the debounce length the timer count is reset and the timer is disabled
   if (button1_timer_count == debounce_length){
     button1_timer_enabled = 0;
     button1_timer_count = 0;
