@@ -1,5 +1,5 @@
 # Schematic Development
-*In every subcategory I will give a general breakdown of the design and then a component by component analysis so that the project is accessible to anyone.*
+*In every subcategory I will give a general breakdown of the design and then a component by component analysis so that the project is accessible to anyone. As always, please reach out if you notice any errors in this writeup*
 ## USB Data and Power
 I decided on using USB2.0 without power delivery as this project does not require super high speed communication and requires a standard 5V (~1W) for its power. USB-C was used as it is slowly becoming the standard for new projects and I wanted to ensure future compatibility. Two voltage regulators are connected to VBUS to provide power for 3V3 logic and 1V9 power for the PMW3389.
 
