@@ -159,7 +159,7 @@ void loop() {
   //if at least 1 ms has passed since the last poll a new poll can occur
   if(curr_time > poll_time){
     UpdatePointer();
-    Mouse.move(xydat[0]/dpi_scaled[dpi_set], xydat[1]/dpi_scaled[dpi_set], 0);
+    // Mouse.move(xydat[0]/dpi_scaled[dpi_set], xydat[1]/dpi_scaled[dpi_set], 0); this line needs to be rewritten
   }
 
   poll_time = curr_time + 1010; //1010µS ≈ 1000hz,  1250µS = 800hz, 2000µS = 500hz, 4000µS = 250hz  
